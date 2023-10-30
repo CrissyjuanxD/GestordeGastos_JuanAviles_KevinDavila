@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:100,400" rel="stylesheet">
+    <link rel="stylesheet" href= {{ url_for('static', filename='css/bootstrap.min.css') }}>
+    <link rel="stylesheet" href= {{ url_for('static', filename='css/custom.css') }}>
+    <link rel="icon" href={{ url_for('static', filename='img/invoice.png') }}>
+    <title>Gestor de Gastos Mensuales</title>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container px-lg-5">
+        <a class="navbar-brand"style="color: #b1dfbb">Proyecto: Gestor de Gastos</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span
+                class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <button class="btn-outline-success" onclick="abrirPDF()">Documento</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <header>
+        <h1 class="text-center">Gestor de Gastos</h1>
+    </header>
+    <div id="newOp" class="contenido-principal">
+        <div class="contenido primario">
+            <h2 class="text-center">Añade tus gastos aqui</h2>
+            <form onsubmit="agregar_gastos(); return false;" action="">
+                <div class="mt-3">
+                    <label class="label fw-bold"> Categoria:</label>
+                    <select id="categoria" required class="form-select form-select-sm" aria-label=".form-select-sm example">
+                        <option value="Servicios">Servicios</option>
+                        <option value="Alimentos">Alimentos</option>
+                        <option value="Educacion">Educación</option>
+                        <option value="Transporte">Transporte</option>
+                        <option value="Trabajo">Trabajo</option>
+                        <option value="Salud">Salud</option>
+                        <option value="Otro Pago">Otro Pago</option>
+                    </select>
+                </div>
+                <div class="my-3">
+                    <label class="label fw-bold">Nombre del Gasto:</label>
+                    <input id="nombre" required type="text" class="form-control"  style="width: 45%;" aria-label="Sizing example input"
+                           aria-describedby="inputGroup-sizing-sm" placeholder="Gasto">
+                </div>
+                <div class="my-3">
+                    <label class="label fw-bold">Cantidad:</label>
+                    <input id="monto" required type="number" step="0.01" class="form-control"  style="width: 45%;" aria-label="Sizing example input"
+                           aria-describedby="inputGroup-sizing-sm" placeholder="Cantidad en $">
+                </div>
+                <div class="mt-3">
+                    <label class="label fw-bold"> Fecha:</label>
+                    <input id="fecha" required type="date" class="input-group form-control"  style="width: 45%;">
+                </div>
+                <br>
+                <button id="submitOp" type="submit" class="btn btn-primary">Agregar</button>
+                <button id="del" type="reset" class="btn btn-secondary">Reset</button>
+            </form>
+        </div> <!--.contenido-->
+        <div class="container">
+            <h2 class="text-center">Listas</h2>
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div class="table-responsive" style="overflow-y: auto; max-height: 320px;">
+                        <!-- Ajusta la altura máxima según tu preferencia -->
+                        <table class="table table-bordered" id="dataTable">
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Nombre</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>Accion</th>
+                            </tr>
+                            {% for dato in lista %}
+                                <tr>
+                                    <td>{{ dato['categoria'] }}</td>
+                                    <td>{{ dato['nombre'] }}</td>
+                                    <td>{{ dato['monto'] }}</td>
+                                    <td>{{ dato['fecha'] }}</td>
+                                    <td></td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <h2 class="text-center">Gastos Mensuales</h2>
+                <form onsubmit="calcularTotal(); calcularTotal1(); return false;">
+                    <div class="card shadow mb-4">
+                            <br>
+                            <p class="text-center m-0 align-items-center justify-content-center" style="font-weight: bold; color: #212529;">Ingresa una Categoria y Fecha para conocer el total de Gastos por mes:
+                                <br>
+                                <br>
+                            <input type="month" id="selectorFecha" class="form-control mx-auto" style="width: 25%;" required="required">
+                                <br>
+                                <label class="label fw-bold"> Categoria:</label>
+                                <select id="selectorCategorias" required="required" class="form-select form-select-sm" aria-label=".form-select-sm example">
+                                    <option value="Servicios">Servicios</option>
+                                    <option value="Alimentos">Alimentos</option>
+                                    <option value="Educacion">Educación</option>
+                                    <option value="Transporte">Transporte</option>
+                                    <option value="Trabajo">Trabajo</option>
+                                    <option value="Salud">Salud</option>
+                                    <option value="Otro Pago">Otro Pago</option>
+                                </select>
+                                <br>
+                                <br>
+                            <button id="calcularBtn" type="submit" class="btn btn-primary">Mostrar Resultados</button>
+                                <br>
+                                <br>
+                                <p id="resultadoGastosPorMes" class=" text-center justify-content-center" style="font-weight: bold; color: #c69500"></p>
+                                <p id="resultadoTotalMes" class=" text-center justify-content-center" style="font-weight: bold; color: #34ce57"></p>
+                            </p>
+                        </div>>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<br>
+<footer class="text-left">
+    <div class="container"><p class="m-0 text-center text-white">Programa Hecho Por Juan Aviles Y Kevin Davila</p>
+        <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Gestor De Gastos
+            2023</p>
+        </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+<script>
+    function validateDecimal(input) {
+        input.value = input.value.replace(/[^0-9.]|(\.\d\d).+/g, '$1');
+        if (parseFloat(input.value) === 0.00) {
+            input.setCustomValidity('El valor no puede ser 0');
+        } else {
+            input.setCustomValidity('')
+        }
+    }
+</script>
+<script>
+    function abrirPDF() {
+        // URL del archivo PDF
+        var pdfURL = 'static/pdf/Tarea-1.pdf';
+
+        // Abrir una ventana emergente con el PDF
+        var nuevaVentana = window.open(pdfURL, 'PDF', 'width=600,height=400');
+
+        // Si hay bloqueadores de ventanas emergentes, muestra un mensaje
+        if (!nuevaVentana || nuevaVentana.closed || typeof nuevaVentana.closed == 'undefined') {
+            alert('Por favor, habilite las ventanas emergentes para ver el PDF.');
+        }
+    }
+</script>
+<script>
+    function agregar_gastos() {
+        var categoria = document.getElementById("categoria").value;
+        var nombre = document.getElementById("nombre").value;
+        var monto = document.getElementById("monto").value;
+        var fecha = document.getElementById("fecha").value;
+        var tabla = document.getElementById("dataTable");
+        var fila = tabla.insertRow(1);
+        var celda1 = fila.insertCell(0);
+        var celda2 = fila.insertCell(1);
+        var celda3 = fila.insertCell(2);
+        var celda4 = fila.insertCell(3);
+        var celda5 = fila.insertCell(4);
+        celda1.innerHTML = categoria;
+        celda2.innerHTML = nombre;
+        celda3.innerHTML = monto;
+        celda4.innerHTML = fecha;
+        celda5.innerHTML = '<input type="checkbox" style="transform: scale(2);" onclick="eliminarFila() ">&nbsp;&nbsp;<a class="align-content-center">Eliminar</a>';
+    }
+
+</script>
+<script>
+    function eliminarFila() {
+        var tabla = document.getElementById("dataTable");
+        var rowCount = tabla.rows.length;
+        for (var i = 1; i < rowCount; i++) {
+            var row = tabla.rows[i];
+            var chkbox = row.cells[4].childNodes[0];
+            if (chkbox != null && chkbox.checked == true) {
+                tabla.deleteRow(i);
+                rowCount--;
+                i--;
+            }
+        }
+    }
+</script>
+<script>
+    function calcularTotal() {
+        var fecha = document.getElementById("selectorFecha").value;
+        var tabla = document.getElementById("dataTable");
+        var categoria = document.getElementById("selectorCategorias").value;
+        var rowCount = tabla.rows.length;
+        var total = 0;
+        for (var i = 1; i < rowCount; i++) {
+            var row = tabla.rows[i];
+            var fechaTabla = row.cells[3].innerHTML;
+            var categoriaTabla = row.cells[0].innerHTML;
+            var montoTabla = row.cells[2].innerHTML;
+            if (fechaTabla.includes(fecha) && categoriaTabla.includes(categoria)) {
+                total += parseFloat(montoTabla);
+               }
+        }
+        document.getElementById("resultadoGastosPorMes").innerHTML = "El total de gastos de la categoria " + categoria + " en el mes " + fecha + " es de: $" + total;
+    }
+</script>
+<script>
+    function calcularTotal1() {
+        var fecha = document.getElementById("selectorFecha").value;
+        var tabla = document.getElementById("dataTable");
+        var rowCount = tabla.rows.length;
+        var total = 0;
+        for (var i = 1; i < rowCount; i++) {
+            var row = tabla.rows[i];
+            var fechaTabla = row.cells[3].innerHTML;
+            if (fechaTabla.includes(fecha)) {
+                var monto = row.cells[2].innerHTML;
+                total += parseFloat(monto);
+            }
+        }
+        document.getElementById("resultadoTotalMes").innerHTML = "El total de los gastos de ese mes fue: $" + total;
+    }
+</script>
+</body>
+</html>
